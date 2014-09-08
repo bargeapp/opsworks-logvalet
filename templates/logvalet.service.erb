@@ -1,0 +1,35 @@
+#!/usr/local/bin/ruby
+
+ROOT_PATH = "<%= @deploy[:deploy_to] %>"
+PID_DIR = "<%= @deploy[:deploy_to] %>/shared/pids"
+
+<% (@deploy[:environment] || []).each do |k,v| %>
+  ENV["<%= k %>"] = "<%= v %>"
+<% end %>
+
+def run_and_ignore_exitcode_and_print_command(command)
+  puts command
+  spawn(command)
+end
+
+def start_logvalet(worker_num)
+  pid = run_and_ignore_exitcode_and_print_command "cd #{ROOT_PATH}/current && bundle exec rake logvalet:poll"
+  File.write("#{PID_DIR}/logvalet_#{worker_num}.pid", pid)
+end
+
+def stop_logvalet(worker_num)
+  run_and_ignore_exitcode_and_print_command "cd #{ROOT_PATH}/current && bundle exec sidekiqctl stop #{pid_file(worker_num)}"
+end
+
+
+case ARGV[0]
+when "start"
+  start_logvalet ARGV[1]
+when "stop"
+  stop_logvalet ARGV[1]
+else
+  puts "Usage: {start|stop} WORKER_ID"
+  exit 1
+end
+
+exit 0
