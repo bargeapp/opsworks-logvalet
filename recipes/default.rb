@@ -4,7 +4,6 @@ node[:deploy].each do |application, deploy|
   Chef::Log.info("Configuring logvalet for application #{application}")
 
   settings = node[:logvalet]
-  settings = settings[application] if settings
   workers = (settings && settings[:workers]) ? settings[:workers] : 1
 
   template "#{deploy[:deploy_to]}/shared/scripts/logvalet" do
