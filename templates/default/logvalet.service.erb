@@ -9,7 +9,9 @@ PID_DIR = "<%= @deploy[:deploy_to] %>/shared/pids"
 
 def run_and_ignore_exitcode_and_print_command(command)
   puts command
-  spawn(command)
+  pid = spawn(command)
+  pgid = `ps -p #{pid} -o pgid=`.strip
+  pgid
 end
 
 def start_logvalet(worker_num)
@@ -26,7 +28,8 @@ def stop_logvalet(worker_num)
   end
 
   pid = File.read(pid_file).to_i
-  Process.kill "SIGINT", pid
+
+  Process.kill "SIGTERM", -pid
 
   dead = false
   30.times do
@@ -40,7 +43,7 @@ def stop_logvalet(worker_num)
     end
   end
 
-  Process.kill "SIGKILL", pid
+  Process.kill "SIGKILL", -pid
   File.delete(pid_file)
 end
 
