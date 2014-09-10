@@ -1,5 +1,5 @@
 node[:deploy].each do |application, deploy|
-  execute "restart-sidekiq" do
+  execute "stop-logvalet" do
     command %Q{
       echo "monit -g logvalet stop all" | at now
     }
