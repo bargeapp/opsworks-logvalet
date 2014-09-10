@@ -43,7 +43,7 @@ def stop_logvalet(worker_num)
     end
   end
 
-  Process.kill "SIGKILL", -pid
+  Process.kill("SIGKILL", -pid) unless dead
   File.delete(pid_file)
 end
 
